@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}Nie znaleziono – Pseudo Shop{% endblock %}
+
+{% block content %}
+<h1>404 – Strona nie istnieje</h1>
+<p>Przepraszamy, ale żądany produkt lub strona nie istnieje.</p>
+<p><a href="{{ url_for('index') }}">Powrót na stronę główną</a></p>
+{% endblock %}

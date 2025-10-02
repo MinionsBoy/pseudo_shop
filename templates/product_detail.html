@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} – Pseudo Shop{% endblock %}
+
+{% block content %}
+<h1>{{ product.name }}</h1>
+<p class="description">{{ product.description }}</p>
+<p class="price">Cena: {{ '%.2f'|format(product.price) }} PLN</p>
+<form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post">
+    <button type="submit" class="button">Dodaj do koszyka</button>
+</form>
+<p><a href="{{ url_for('index') }}">&laquo; Powrót do listy produktów</a></p>
+{% endblock %}

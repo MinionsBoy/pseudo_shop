@@ -1,0 +1,16 @@
+body {
+    background-color: #f6f7f9;
+}
+
+/* Light custom tweaks on top of Bootstrap */
+.card .card-text {
+    min-height: 3.5rem;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.btn-group span {
+    line-height: 1.6;
+}
