@@ -1,7 +1,3 @@
-## Przykładowe scenariusze testów jednostkowych API (niepowtarzające się z api_tests.md)
-
-Poniżej przedstawiono dodatkowe scenariusze testów jednostkowych dla API aplikacji pseudo_shop, które nie powielają przypadków z pliku `api_tests.md`. Skupiają się one na przypadkach brzegowych, walidacji danych oraz nietypowych sytuacjach.
-
 ### 1. GET `/api/products`
 - **Scenariusz:** Odpowiedź dla pustej listy produktów (jeśli aplikacja to obsługuje).
   - Oczekiwany rezultat: kod 200, odpowiedź JSON zawiera pustą listę.
