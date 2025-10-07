@@ -1,1 +1,4 @@
 Flask>=2.2
+selenium
+pytest
+webdriver-manager

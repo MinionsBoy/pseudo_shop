@@ -1,5 +1,6 @@
 import pytest
 from app import products
+from tests.utils.api_helpers import get_cart_items, post_product_to_cart
 
 def test_get_cart_empty(client):
     response = client.get('/api/cart', follow_redirects=True)
@@ -10,8 +11,7 @@ def test_get_cart_empty(client):
     assert isinstance(data, dict)
     assert 'total' in data
     assert data['total'] == 0
-    assert 'items' in data or 'products' in data
-    items = data.get('items', data.get('products', []))
+    items = get_cart_items(response)
     assert isinstance(items, list)
     assert len(items) == 0
 
@@ -20,8 +20,8 @@ def test_get_cart_with_products(client, app):
         product_id = products[0]['id']
         price = products[0]['price']
     # Add product to cart
-    client.post('/api/cart', json={'product_id': product_id}, follow_redirects=True)
-    client.post('/api/cart', json={'product_id': product_id}, follow_redirects=True)
+    post_product_to_cart(client, product_id)
+    post_product_to_cart(client, product_id)
     response = client.get('/api/cart', follow_redirects=True)
     assert response.status_code == 200
     assert response.is_json
@@ -29,8 +29,7 @@ def test_get_cart_with_products(client, app):
     data = response.get_json()
     assert 'total' in data
     assert data['total'] == 2 * price
-    assert 'items' in data or 'products' in data
-    items = data.get('items', data.get('products', []))
+    items = get_cart_items(response)
     found = False
     for item in items:
         prod = item.get('product', item)
@@ -44,7 +43,7 @@ def test_cart_add_and_remove(client, app):
     # Dodaj produkt, usuń go i sprawdź czy koszyk pusty
     with app.app_context():
         pid = products[0]['id']
-    client.post('/api/cart', json={'product_id': pid}, follow_redirects=True)
+    post_product_to_cart(client, pid)
     # Usuwanie przez endpoint HTML, ale sprawdzamy efekt w API
     client.post(f'/remove_from_cart/{pid}', follow_redirects=True)
     response = client.get('/api/cart')
@@ -61,7 +60,7 @@ def test_cart_clear(client, app):
     with app.app_context():
         ids = [p['id'] for p in products[:2]]
     for pid in ids:
-        client.post('/api/cart', json={'product_id': pid}, follow_redirects=True)
+        post_product_to_cart(client, pid)
     client.post('/clear_cart', follow_redirects=True)
     response = client.get('/api/cart')
     data = response.get_json()
@@ -74,7 +73,7 @@ def test_cart_increase_decrease_qty(client, app):
     with app.app_context():
         pid = products[0]['id']
         price = products[0]['price']
-    client.post('/api/cart', json={'product_id': pid}, follow_redirects=True)
+    post_product_to_cart(client, pid)
     client.post(f'/increase_qty/{pid}', follow_redirects=True)
     response = client.get('/api/cart')
     data = response.get_json()

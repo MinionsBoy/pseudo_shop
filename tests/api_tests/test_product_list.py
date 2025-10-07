@@ -1,5 +1,6 @@
 import pytest
 from app import products
+from tests.utils.api_helpers import assert_product_fields
 
 def test_get_products(client, app):
     # Arrange: get the products list from the app context if possible
@@ -18,7 +19,7 @@ def test_get_products(client, app):
     assert isinstance(data, list)
     assert len(data) == expected_count
     for product in data:
-        assert required_fields.issubset(product.keys())
+        assert_product_fields(product)
 
 # --- DODATKOWE TESTY BRZEGOWE ---
 def test_get_products_not_empty(client):
@@ -31,10 +32,7 @@ def test_get_products_fields_types(client):
     response = client.get('/api/products', follow_redirects=True)
     data = response.get_json()
     for product in data:
-        assert isinstance(product['id'], int)
-        assert isinstance(product['name'], str)
-        assert isinstance(product['price'], float)
-        assert isinstance(product['description'], str)
+        assert_product_fields(product)
 
 def test_get_products_content_type(client):
     response = client.get('/api/products', follow_redirects=True)

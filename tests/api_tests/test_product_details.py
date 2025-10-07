@@ -1,5 +1,6 @@
 import pytest
 from app import products
+from tests.utils.api_helpers import assert_product_fields
 
 def test_get_product_details_existing(client, app):
     with app.app_context():
@@ -13,7 +14,7 @@ def test_get_product_details_existing(client, app):
     assert response.headers['Content-Type'].startswith('application/json')
     data = response.get_json()
     assert isinstance(data, dict)
-    assert required_fields.issubset(data.keys())
+    assert_product_fields(data)
     assert data["id"] == existing_id
     assert data["name"] == expected["name"]
     assert data["price"] == expected["price"]

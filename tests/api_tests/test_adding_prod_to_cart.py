@@ -1,30 +1,29 @@
 import pytest
 from app import products
+from tests.utils.api_helpers import get_cart_items, post_product_to_cart
 def test_post_cart_add_product(client, app):
     with app.app_context():
         product_id = 3
         price = next((p['price'] for p in products if p['id'] == product_id), 0)
 
-    response = client.post('/api/cart', json={'product_id': product_id}, follow_redirects=True)
+    response = post_product_to_cart(client, product_id)
     assert response.status_code == 201
     assert response.is_json
     assert response.headers['Content-Type'].startswith('application/json')
     data = response.get_json()
     assert 'added' in data.get('message', '') or 'success' in data.get('message', '')
 
-    # Add another product and check cart (brzegowy: wielokrotne dodanie)
-    client.post('/api/cart', json={'product_id': product_id}, follow_redirects=True)
+    # Add another product and check cart (edge: multiple add)
+    post_product_to_cart(client, product_id)
     cart_response = client.get('/api/cart')
     assert cart_response.status_code == 200
     assert cart_response.headers['Content-Type'].startswith('application/json')
     cart = cart_response.get_json()
     assert isinstance(cart, dict)
-    assert 'items' in cart or 'products' in cart
-    items = cart.get('items', cart.get('products', []))
-    # Sprawdź, czy produkt jest dwa razy
+    items = get_cart_items(cart_response)
     found = False
     for item in items:
-        prod = item.get('product', item)  # obsługa {'product': {...}, 'quantity': ...} lub {'id': ...}
+        prod = item.get('product', item)
         if prod['id'] == product_id:
             assert item.get('quantity', 1) == 2
             found = True
@@ -72,12 +71,12 @@ def test_post_cart_multiple_products(client, app):
         ids = [p['id'] for p in products[:2]]
         prices = [p['price'] for p in products[:2]]
     for pid in ids:
-        resp = client.post('/api/cart', json={'product_id': pid}, follow_redirects=True)
+        resp = post_product_to_cart(client, pid)
         assert resp.status_code == 201
     cart_response = client.get('/api/cart')
     assert cart_response.status_code == 200
     cart = cart_response.get_json()
-    items = cart.get('items', cart.get('products', []))
+    items = get_cart_items(cart_response)
     found = [False, False]
     for item in items:
         prod = item.get('product', item)
